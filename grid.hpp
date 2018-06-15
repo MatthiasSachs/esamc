@@ -8,7 +8,6 @@
 
 #ifndef grid_hpp
 #define grid_hpp
-#include <Python/Python.h>
 #include <stdio.h>
 #include <util.h>
 #include <iostream>
