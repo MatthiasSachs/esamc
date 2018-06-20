@@ -86,25 +86,37 @@ public:
     void traverse();
 };
 
-
 class Langevin_DPD_m : public Langevin_DPD{
 public:
     Langevin_DPD_m( double stepsize_a, OutputSheduler *outp_a,
-                   ParticleSystem *ps_a,
-                   LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft, size_t n_subsetps, int m_exp, double tol_exp);
-    double m_exp;
-    double tol_exp;
+                          ParticleSystem *ps_a,
+                          LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft, size_t n_subsetps);
     size_t n_substeps;
     double substepsize;
     gsl_vector *momentum_copy;
-    void O_step(double stepsize);
+    
+    void O_step(double stepsize_factor);
     void traverse();
 };
 
 
-class Langevin_DPD_mBAOAB : public Langevin_DPD_m{
+class Langevin_DPD_m_krylov : public Langevin_DPD_m{
 public:
-    Langevin_DPD_mBAOAB( double stepsize_a, OutputSheduler *outp_a,
+    Langevin_DPD_m_krylov( double stepsize_a, OutputSheduler *outp_a,
+                   ParticleSystem *ps_a,
+                   LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft, size_t n_subsetps, int m_exp, double tol_exp);
+    
+    int m_exp;
+    double tol_exp;
+
+    void O_step(double stepsize_factor);
+    void traverse();
+};
+
+
+class Langevin_DPD_m_krylovBAOAB : public Langevin_DPD_m_krylov{
+public:
+    Langevin_DPD_m_krylovBAOAB( double stepsize_a, OutputSheduler *outp_a,
                         ParticleSystem *ps_a,
                         LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft, size_t n_subsetps, int m_exp, double tol_exp);
     

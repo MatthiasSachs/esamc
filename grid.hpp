@@ -149,6 +149,7 @@ public:
     void getNeighbour(int *kc, const int *ic, const int lin_index);
 };
 
+
 class ExternalPotential {
 public:
     int sdim;

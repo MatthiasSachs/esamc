@@ -23,6 +23,7 @@
 #include "outputshedulers.hpp"
 #include "dynamics.hpp"
 #include "langevin_DPD.hpp"
+#include "langevin_DPD_literature.hpp"
 void test_Verlet();
 void test_mBAOAB();
 

@@ -48,6 +48,7 @@ void DPD_Tensor::update_weights(){
         gsl_spmatrix_set(this->weights_2sqrt, this->weights->i[k], this->weights->p[k], sqrt(2.0*this->weights->data[k]));
     }
 }
+
 void DPD_Tensor::update_Gamma(){
     gsl_spmatrix_set_zero(this->Gamma);
     gsl_matrix_set_zero(this->Diagonal);
@@ -89,8 +90,8 @@ void DPD_Tensor::update_Gamma(){
             }
         }
     }
-    
 }
+
 void DPD_Tensor::update_Noise(){
     gsl_spmatrix *rd = this->ps->rel_distance;
     gsl_spmatrix *rp = this->ps->rel_position;
@@ -155,16 +156,22 @@ Langevin_DPD::Langevin_DPD( double stepsize_a, OutputSheduler *outp_a, ParticleS
 }
 void Langevin_DPD::traverse(){};
 
-
-Langevin_DPD_m::Langevin_DPD_m( double stepsize_a, OutputSheduler *outp_a, ParticleSystem *ps_a, LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft_a, size_t n_substeps_a, int m_exp, double tol_exp) : Langevin_DPD::Langevin_DPD( stepsize_a, outp_a, ps_a,lcgrid_a,Tk_B_a, ft_a){
+Langevin_DPD_m::Langevin_DPD_m( double stepsize_a, OutputSheduler *outp_a, ParticleSystem *ps_a, LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft_a, size_t n_substeps_a) : Langevin_DPD::Langevin_DPD( stepsize_a, outp_a, ps_a,lcgrid_a,Tk_B_a, ft_a){
     this->n_substeps = n_substeps_a;
-    this->m_exp = m_exp;
-    this->tol_exp = tol_exp;
     this->substepsize = (stepsize_a/(double)n_substeps_a);
     this->momentum_copy = gsl_vector_calloc(this->ps->dim);
 }
 void Langevin_DPD_m::traverse(){};
-void Langevin_DPD_m::O_step(double stepsize_factor){
+
+Langevin_DPD_m_krylov::Langevin_DPD_m_krylov( double stepsize_a, OutputSheduler *outp_a, ParticleSystem *ps_a, LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft_a, size_t n_substeps_a, int m_exp, double tol_exp) : Langevin_DPD_m::Langevin_DPD_m( stepsize_a, outp_a, ps_a,lcgrid_a,Tk_B_a, ft_a, n_substeps_a)
+{
+    this->m_exp = m_exp;
+    this->tol_exp = tol_exp;
+}
+
+void Langevin_DPD_m_krylov::traverse(){};
+
+void Langevin_DPD_m_krylov::O_step(double stepsize_factor){
     double hs = this->substepsize * stepsize_factor;
     double var_sqrt = sqrt(hs*this->Tk_B);
     double hump;
@@ -186,8 +193,8 @@ void Langevin_DPD_m::O_step(double stepsize_factor){
 
 
 
-Langevin_DPD_mBAOAB::Langevin_DPD_mBAOAB( double stepsize_a, OutputSheduler *outp_a, ParticleSystem *ps_a, LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft_a, size_t n_substeps_a, int m_exp, double tol_exp): Langevin_DPD_m::Langevin_DPD_m( stepsize_a, outp_a, ps_a, lcgrid_a, Tk_B_a, ft_a, n_substeps_a, m_exp, tol_exp){};
-void Langevin_DPD_mBAOAB::traverse(){
+Langevin_DPD_m_krylovBAOAB::Langevin_DPD_m_krylovBAOAB( double stepsize_a, OutputSheduler *outp_a, ParticleSystem *ps_a, LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft_a, size_t n_substeps_a, int m_exp, double tol_exp): Langevin_DPD_m_krylov::Langevin_DPD_m_krylov( stepsize_a, outp_a, ps_a, lcgrid_a, Tk_B_a, ft_a, n_substeps_a, m_exp, tol_exp){};
+void Langevin_DPD_m_krylovBAOAB::traverse(){
     this->B_step(.5 );
     this->A_step(.5 );
     this->ps->apply_boundary();

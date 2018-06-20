@@ -118,8 +118,7 @@ void test_Verlet()
 void test_mBAOAB()
 {
     
-    std::cout << "Hello, World!\n";
-    int Np=500;
+    int Np=375;
     int sdim = 3;
     double cutoff = 1.0;
     const gsl_rng_type * T;
@@ -129,8 +128,8 @@ void test_mBAOAB()
     r = gsl_rng_alloc (T);
     
     
-    double L = 10.0;
-    double a = 10.0;
+    double L = 5.0;
+    double a = 5.0;
     gsl_vector *L_vec = gsl_vector_alloc(sdim);
     gsl_vector_set_all (L_vec, L);
     gsl_vector_int *nc_vec = gsl_vector_int_alloc(sdim);
@@ -138,12 +137,13 @@ void test_mBAOAB()
     {
         nc_vec->data[d] = floor(L_vec->data[d]/cutoff);
     }
+    
     Torus *domain = new Torus(sdim, L_vec->data);
     //RRn *domain = new RRn(sdim, L_vec->data);
     ParticleSystem *ps = new ParticleSystem(Np, sdim, domain);
     
      for (int i=0; i<Np*sdim; i++){
-     ps->position->data[i] = gsl_rng_uniform(r)*a;
+         ps->position->data[i] = gsl_rng_uniform(r)*a;
      //std::cout << "value: " << ps->position->data[i] <<".\n";
      }
     
@@ -153,42 +153,38 @@ void test_mBAOAB()
     //ParticleList *particleList;
     Particle **particle_array = (Particle**) malloc(Np*sizeof(Particle*));
     ParticleList **particleList_array =(ParticleList**) malloc(Np*sizeof(ParticleList*));
+    
+    
     for (int i=0; i<Np; i++)
     {
-        //particle = (Particle) malloc(sizeof(Particle));
         particle_array[i] = new Particle(&(ps->position->data[i * ps->position->tda]),
                                          &(ps->momentum->data[i * ps->momentum->tda]),
                                          &(ps->mass->data[i]),&(ps->force->data[i * ps->force->tda]),
                                          &(ps->U->data[i]),
                                          i);
-        //particleList = (ParticleList) malloc(sizeof(ParticleList));
+
         particleList_array[i] = new ParticleList(particle_array[i]);
         lcgrid->addParticleList(particleList_array[i]);
-        //lcgrid->findIndex( &(ps->position->data[i * ps->position->tda]), ic_vec->data);
-        //linear_index = lcgrid->index(ic_vec->data);
-        //lcgrid->addParticle(&particle);
-
-        
     }
 
     lcgrid->sortParticles();
     
     //lcgrid->printState();
     
-    double k_stiffness = 5.0;
+    double k_stiffness = 25.0;
     double r_cutoff = 1.0;
     //MorsePot *potential = new MorsePot(sdim, ps, 1.0, 1.0, 1.0);
     //HarmonicPairPot *potential = new HarmonicPairPot(sdim, ps, 1.0);
     DPDPot *potential = new DPDPot(sdim, ps, k_stiffness, r_cutoff);
     //LJPot *potential = new LJPot(sdim, ps,  .001, 1.0);
-    gsl_vector *center = gsl_vector_calloc(sdim);
-    double stiffness = 1.0;
-    HarmonicPotential *epotential = new HarmonicPotential(sdim, ps, center->data, stiffness);
+    //gsl_vector *center = gsl_vector_calloc(sdim);
+    //double stiffness = 1.0;
+    //HarmonicPotential *epotential = new HarmonicPotential(sdim, ps, center->data, stiffness);
     ps->addPotential(potential);
     //ps->addPotential(epotential);
     double stepsize = .5;
     
-    long int nsample = 100;
+    long int nsample = 1000;
     int modprnt = 1;
     BufferedOutputShedulerU *outp = new BufferedOutputShedulerU(nsample, modprnt, ps);
     
@@ -206,12 +202,14 @@ void test_mBAOAB()
                                            lcgrid,
                                            &interaction_term,
                                            r_cutoff);
-    //VelocityVerlet *sampler = new VelocityVerlet(stepsize, outp, ps, lcgrid);
-    int n_substeps = 5;
-    int m_exp = 20;
-    double tol_exp = 1E-4;
-    Langevin_DPD_mBAOAB *sampler  = new Langevin_DPD_mBAOAB(stepsize, outp, ps, lcgrid, Tk_B, &ft, n_substeps, m_exp, tol_exp);
     
+    //VelocityVerlet *sampler = new VelocityVerlet(stepsize, outp, ps, lcgrid);
+    int n_substeps = 1;
+    Langevin_DPD_m_vv *sampler  = new Langevin_DPD_m_vv(stepsize, outp, ps, lcgrid, Tk_B, &ft, n_substeps);
+    int m_exp = 20;
+    double tol_exp = 1E-2;
+    //Langevin_DPD_m_krylovBAOAB *sampler  = new Langevin_DPD_m_krylovBAOAB(stepsize, outp, ps, lcgrid, Tk_B, &ft, n_substeps, m_exp, tol_exp);
+    //VelocityVerlet *sampler = new VelocityVerlet(stepsize, outp, ps, lcgrid);
     time_t tstart, tend;
     tstart = time(0);
     sampler->sample();
