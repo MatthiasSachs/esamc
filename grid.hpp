@@ -48,35 +48,52 @@ public:
 
 
 class ParticleSystem {
-    
+    /*
+     Particle system class: Stores all relevant information about the system including the system state simulation time
+     */
 public:
-    int sdim;
-    int Np;
-    int dim;
-    gsl_matrix *position;
-    gsl_matrix *momentum;
-    gsl_vector *mass;
-    gsl_matrix *force;
-    gsl_vector *U;
+    int sdim;  // Number of dimensions of spacial domain
+    int Np; // Number of simulated particles
+    int dim; //Total number of dimensions of simulated system
+    gsl_matrix *position;  // matrix storing position of particles
+    gsl_matrix *momentum; // matrix storing momentum of particles
+    gsl_vector *mass; // vector storing mass of particles
+    gsl_matrix *force; // matrix storing force
+    gsl_vector *U; //vector storing the contribution to the total potential energy of each particle
+    
+    /* Vector views of the above variables as */
     gsl_vector_view position_as_vec;
     gsl_vector_view momentum_as_vec;
     gsl_vector_view force_as_vec;
-    gsl_spmatrix *rel_distance;
-    gsl_spmatrix *rel_position;
-    Domain *domain;
     
-    ParticleSystem(int Np_a, int sdim_a, Domain *domain_a);
-    void apply_boundary();
-    void comp_rel_position(double *rel_pos, double *pos1, double *pos2);
-    double comp_rel_position(double *pos1, double *pos2, int d);
-    void addPotential(PairPotential *ppotential);
-    void addPotential(ExternalPotential *epotential);
-    PairPotential *ppotential = NULL;
-    ExternalPotential *epotential = NULL;
-    LcGrid *lcgrid;
-};
+    
+    gsl_spmatrix *rel_distance; // relative distence between particles
+    gsl_spmatrix *rel_position;  // relative position between particles
+    Domain *domain; //Domain on which particles are simulated (e.g. sdim-dimensional torus, R^sdim
+    
+    PairPotential *ppotential = NULL;           //array of pair potentials
+    ExternalPotential *epotential = NULL;       //array of external potentials
+    LcGrid *lcgrid;                             //Linked cell grid used for the computation of forces
+
+    
+    ParticleSystem(int Np_a, Domain *domain_a); // standard constructor
+    
+    void apply_boundary();                      // Resolves boundary conditions (calls the respective function of in domain attribute)
+    
+    void comp_rel_position(double *rel_pos, double *pos1, double *pos2); // Computes relative position between the position of two particles. Output is stored in the array *rel_pos
+    
+    double comp_rel_position(double *pos1, double *pos2, int d); // Returns relative position in space dimension d between the position of two particles.
+    
+    void addPotential(PairPotential *ppotential); // Adds *ppotential to the array of pair potentials
+    
+    void addPotential(ExternalPotential *epotential); //Adds *epotential to the array of external potential
+    
+   };
 
 
+/*
+ Base class for particles used in the LinkedCell algorithm for the computation of short range forces.
+ */
 class Particle{
 public:
     double *position;
@@ -88,7 +105,9 @@ public:
     Particle(double *position_a, double *momentum_a, double *mass_a, double *force_a, double *U_a, int id_a);
 };
 
-
+/*
+ Base class for particleLists used in the LinkedCell algorithm for the computation of short range forces.
+ */
 class ParticleList {
     public:
     Particle *p;
@@ -97,7 +116,9 @@ class ParticleList {
     ParticleList(double *position, double *momentum, double *mass, double *force, double *U, int id);
 };
 typedef ParticleList* Cell;
-
+/*
+ Linked cell grid implementing the linked cell algorithm in 1,2, or 3 spacial dimension.
+ */
 class LcGrid{
 public:
     int sdim;
@@ -118,7 +139,7 @@ public:
     /* computes relative position + distance between particles. Ensures that only values corresponding to particle pairs with distance < cutoff are added to the matrices rel_position and rel_distance */
     void compRelPos(gsl_spmatrix *rel_position,gsl_spmatrix *rel_distance, double cutoff); //
     
-    /* Used in the linked cell algorithm: */
+    /* Helper functions used in the linked cell algorithm: */
     void findIndex( double* position, int *index );
     void gridIndex(int *ic);
     int sub2lin(int *ic);
@@ -138,7 +159,9 @@ public:
 
 
 };
-
+/*
+Base class used in linked cell algorithm to determine neighbouring cells
+ */
 class Stamp{
 public:
     int sdim;
@@ -149,7 +172,9 @@ public:
     void getNeighbour(int *kc, const int *ic, const int lin_index);
 };
 
-
+/*
+ Base class for external potentials
+ */
 class ExternalPotential {
 public:
     int sdim;
@@ -161,6 +186,9 @@ public:
 
 
 
+/*
+ Base class for pair potentials
+ */
 class PairPotential {
 public:
     int sdim;
@@ -170,7 +198,9 @@ public:
     virtual void comp_pot(Particle *pi, Particle *pj);
 };
 
-
+/*
+ Base class for an output task. See outpusheduler.chh for derived classes
+ */
 class OutputTask{
 public:
     double *variable;
@@ -181,7 +211,9 @@ public:
     OutputTask(gsl_matrix *data, std::string variableName_a);
 };
 
-
+/*
+ Base class for an output task. See outpusheduler.chh for derived classes
+ */
 class OutputSheduler{
 public:
     long int nsample;

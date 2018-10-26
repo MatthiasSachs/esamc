@@ -32,7 +32,7 @@ void test_sparseExp(){
      nc_vec->data[d] = floor(L_vec->data[d]/cutoff);
      }
      
-     ParticleSystem *ps = new ParticleSystem(Np, sdim, Ni, L_vec->data);
+     ParticleSystem *ps = new ParticleSystem(Np, Ni, L_vec->data);
      for (int i=0; i<Np*sdim; i++){
      ps->position->data[i] = gsl_rng_uniform(r)*L;
      std::cout << "value: " << ps->position->data[i] <<".\n";

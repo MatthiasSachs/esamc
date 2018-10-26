@@ -16,9 +16,10 @@ inline int positive_modulo(int i, int n) {
     return (i % n + n) % n;
 }
 
-ParticleSystem::ParticleSystem(int Np_a, int sdim_a, Domain *domain_a){
-    Np     =   Np_a;
-    sdim   =   sdim_a;
+
+ParticleSystem::ParticleSystem(int Np_a, Domain *domain_a){
+    Np     =   Np_a;                   
+    sdim   =   domain_a->sdim;
     dim    =   this->Np * this->sdim;
     domain     =   domain_a; this->domain->ps = this;
     position    = gsl_matrix_calloc(this->Np, this->sdim);

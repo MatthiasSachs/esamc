@@ -33,7 +33,7 @@ void test_Verlet()
     }
     Torus *domain = new Torus(sdim, L_vec->data);
     //RRn *domain = new RRn(sdim, L_vec->data);
-    ParticleSystem *ps = new ParticleSystem(Np, sdim, domain);
+    ParticleSystem *ps = new ParticleSystem(Np, domain);
     /*
     for (int i=0; i<Np*sdim; i++){
         ps->position->data[i] = gsl_rng_uniform(r)*a;
@@ -41,9 +41,6 @@ void test_Verlet()
     }
      */
     LcGrid *lcgrid = new LcGrid(ps,nc_vec->data);
-    //std::vector<Particle> =
-    //Particle *particle;
-    //ParticleList *particleList;
     Particle **particle_array = (Particle**) malloc(Np*sizeof(Particle*));
     ParticleList **particleList_array =(ParticleList**) malloc(Np*sizeof(ParticleList*));
     for (int i=0; i<Np; i++)
@@ -138,19 +135,21 @@ void test_mBAOAB()
         nc_vec->data[d] = floor(L_vec->data[d]/cutoff);
     }
     
+    
     Torus *domain = new Torus(sdim, L_vec->data);
     //RRn *domain = new RRn(sdim, L_vec->data);
-    ParticleSystem *ps = new ParticleSystem(Np, sdim, domain);
-    
+
+    ParticleSystem *ps = new ParticleSystem(Np, domain);
+
+/******************
+ Initialization of Linked cell algorithm and allocation of memory
+ *******************************/
      for (int i=0; i<Np*sdim; i++){
          ps->position->data[i] = gsl_rng_uniform(r)*a;
      //std::cout << "value: " << ps->position->data[i] <<".\n";
      }
     
     LcGrid *lcgrid = new LcGrid(ps,nc_vec->data);
-    //std::vector<Particle> =
-    //Particle *particle;
-    //ParticleList *particleList;
     Particle **particle_array = (Particle**) malloc(Np*sizeof(Particle*));
     ParticleList **particleList_array =(ParticleList**) malloc(Np*sizeof(ParticleList*));
     
@@ -168,7 +167,7 @@ void test_mBAOAB()
     }
 
     lcgrid->sortParticles();
-    
+/*************************************************************************/
     //lcgrid->printState();
     
     double k_stiffness = 25.0;
