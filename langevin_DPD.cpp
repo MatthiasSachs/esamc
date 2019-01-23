@@ -194,14 +194,26 @@ void Langevin_DPD_m_krylov::O_step(double stepsize_factor){
 
 
 Langevin_DPD_m_krylovBAOAB::Langevin_DPD_m_krylovBAOAB( double stepsize_a, OutputSheduler *outp_a, ParticleSystem *ps_a, LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft_a, size_t n_substeps_a, int m_exp, double tol_exp): Langevin_DPD_m_krylov::Langevin_DPD_m_krylov( stepsize_a, outp_a, ps_a, lcgrid_a, Tk_B_a, ft_a, n_substeps_a, m_exp, tol_exp){};
+
 void Langevin_DPD_m_krylovBAOAB::traverse(){
     this->B_step(.5 );
     this->A_step(.5 );
     this->ps->apply_boundary();
-    this->lcgrid->compForce();
     this->O_step(1.0);
     this->A_step(.5 );
     this->ps->apply_boundary();
     this->lcgrid->compForce();
     this->B_step(.5 );
+}
+
+Langevin_DPD_m_krylovABOBA::Langevin_DPD_m_krylovABOBA( double stepsize_a, OutputSheduler *outp_a, ParticleSystem *ps_a, LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft_a, size_t n_substeps_a, int m_exp, double tol_exp): Langevin_DPD_m_krylov::Langevin_DPD_m_krylov( stepsize_a, outp_a, ps_a, lcgrid_a, Tk_B_a, ft_a, n_substeps_a, m_exp, tol_exp){};
+
+void Langevin_DPD_m_krylovABOBA::traverse(){
+    this->A_step(.5 );
+    this->ps->apply_boundary();
+    this->lcgrid->compForce();
+    this->B_step(.5 );
+    this->O_step(1.0);
+    this->B_step(.5 );
+    this->A_step(.5 );
 }

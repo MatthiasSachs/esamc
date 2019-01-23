@@ -122,6 +122,13 @@ public:
     
     void traverse();
 };
-
+class Langevin_DPD_m_krylovABOBA : public Langevin_DPD_m_krylov{
+    public:
+    Langevin_DPD_m_krylovABOBA( double stepsize_a, OutputSheduler *outp_a,
+                               ParticleSystem *ps_a,
+                               LcGrid *lcgrid_a, double Tk_B_a, DPD_Tensor *ft, size_t n_subsetps, int m_exp, double tol_exp);
+    
+    void traverse();
+};
 
 #endif /* langevin_DPD_hpp */
