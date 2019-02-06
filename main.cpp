@@ -28,7 +28,7 @@
 
 int main(int argc, const char * argv[]) {
     //test_Verlet();
-    test_mBAOAB();
-    //test_mBAOAB_RR3();
+    //test_mBAOAB();
+    test_mBAOAB_RR3();
     //test_sparseExp();
 }

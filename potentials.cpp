@@ -172,11 +172,10 @@ void DPDPot::comp_laplace(Particle *pi, Particle *pj){
     }
     if (r2 < r_cutoff2 && r2 > 0 ){
         r1 = sqrt(r2);
-        //for (int d = 0; d < this->sdim; d++){
-        //    *(pi->laplace) += .5 * k_stiffness * ( 3.0/r_cutoff - 2.0/r1 );
-        //}
+        //*(pi->laplace) += .5 * k_stiffness;
         for (int d = 0; d < this->sdim; d++){
-            *(pi->laplace) += .25 * k_stiffness * ((8.0 * dist2[d])/r_cutoff2-(4.0 * (1.0-r2/r_cutoff))/r_cutoff) * r_cutoff;                                      
+//             *(pi->laplace) += .5 * k_stiffness * (pow(r1,3)-(r2-dist2[d]) * r_cutoff)/( pow(r1,3)*r_cutoff);
+            *(pi->laplace) += .5 * k_stiffness * ( 3.0/r_cutoff - 2.0/r1 );
         }
     }
 }

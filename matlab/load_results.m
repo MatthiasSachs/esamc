@@ -20,9 +20,7 @@ hold on
 plot(sum(momentum_traj(1:3:end,:),1))
 plot(sum(momentum_traj(2:3:end,:),1))
 title('Total Momentum')
-for i =1:3
-    mean(momentum_traj(1:3:end,:).^2,2)
-end
+
 %%plot(sum(momentum_traj))
 figure;
 plot(sum(position_traj(1:2:end,:),1))
