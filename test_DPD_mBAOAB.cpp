@@ -117,7 +117,7 @@ void test_Verlet()
 void test_mBAOAB()
 {
     
-    int Np=200;//75;
+    int Np=100;//75;
     int sdim = 3;
     double cutoff = 1.0;
     const gsl_rng_type * T;
@@ -127,8 +127,8 @@ void test_mBAOAB()
     r = gsl_rng_alloc (T);
     
     
-    double L = 5.0;
-    double a = 5.0;
+    double L = 4.0;
+    double a = 4.0;
     gsl_vector *L_vec = gsl_vector_alloc(sdim);
     gsl_vector_set_all (L_vec, L);
     gsl_vector_int *nc_vec = gsl_vector_int_alloc(sdim);
@@ -184,9 +184,9 @@ void test_mBAOAB()
     //HarmonicPotential *epotential = new HarmonicPotential(sdim, ps, center->data, stiffness);
     ps->addPotential(potential);
     //ps->addPotential(epotential);
-    double stepsize = .05;
+    double stepsize = .025;
     
-    long int nsample = 1000;
+    long int nsample = 40000;
     int modprnt = 1;
     BufferedOutputShedulerU *outp = new BufferedOutputShedulerU(nsample, modprnt, ps);
     
@@ -222,8 +222,8 @@ void test_mBAOAB()
     sampler->sample();
     tend = time(0);
     
-//     outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
-    outp->h5write("/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5");
+     outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
+//    outp->h5write("/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5");
 
     std::cout << "It took "<< difftime(tend, tstart) <<" second(s)."<< ".\n";
     gsl_rng_free (r);
@@ -341,8 +341,8 @@ void test_mBAOAB_RR3()
     sampler->sample();
     tend = time(0);
     
-//     outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
-    outp->h5write("/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5");
+     outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
+    //outp->h5write("/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5");
     
     std::cout << "It took "<< difftime(tend, tstart) <<" second(s)."<< ".\n";
     gsl_rng_free (r);
