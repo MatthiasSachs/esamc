@@ -18,6 +18,7 @@ public:
     HarmonicPotential(size_t sdim_a, ParticleSystem *ps_a, double *center_a, double stiffness_a);
     void comp_force(Particle *pi);
     void comp_pot(Particle *pi);
+    void comp_laplace(Particle *pi);
 };
 
 class HarmonicPairPot : public PairPotential {
@@ -26,6 +27,7 @@ public:
     HarmonicPairPot(int sdim_a, ParticleSystem *ps_a, double stiffness) ;
     void comp_force(Particle *pi, Particle *pj);
     void comp_pot(Particle *pi, Particle *pj);
+    void comp_laplace(Particle *pi, Particle *pj);
 };
 
 class LJPot : public PairPotential {
@@ -35,6 +37,7 @@ public:
     LJPot(int sdim_a, ParticleSystem *ps_a, double epsilon_a, double sigma_a) ;
     void comp_force(Particle *pi, Particle *pj);
     void comp_pot(Particle *pi, Particle *pj);
+    void comp_laplace(Particle *pi, Particle *pj);
 };
 
 class MorsePot : public PairPotential {
@@ -45,6 +48,7 @@ public:
     MorsePot(int sdim_a, ParticleSystem *ps_a, double D_a, double r_e_a, double a_a);
     void comp_force(Particle *pi, Particle *pj);
     void comp_pot(Particle *pi, Particle *pj);
+    void comp_laplace(Particle *pi, Particle *pj);
 };
 
 class DPDPot : public PairPotential {
@@ -55,6 +59,7 @@ public:
     DPDPot(int sdim_a, ParticleSystem *ps_a, double k_stiffness_a, double r_cutoff_a);
     void comp_force(Particle *pi, Particle *pj);
     void comp_pot(Particle *pi, Particle *pj);
+    void comp_laplace(Particle *pi, Particle *pj);
 };
 
 

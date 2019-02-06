@@ -29,8 +29,8 @@ void Langevin_DPD_m_vv::O_step(double stepsize_factor, bool need_FD_update){
         this->ft->update_Noise();
         gsl_blas_daxpy(var_sqrt, &this->ft->Noise_Matrix_as_vec.vector, &this->ps->momentum_as_vec.vector);
     }
-    
 }
+
 void Langevin_DPD_m_vv::traverse(){
     this->O_step(.5, false);
     this->B_step(.5);

@@ -25,7 +25,11 @@ void HarmonicPotential::comp_pot(Particle *pi){
         dist = this->ps->comp_rel_position(this->center, pi->position, d);
         r2 += sqr(dist);
     }
-    *(pi->U) += .5 * stiffness *r2;
+    *(pi->U) += .5 * stiffness * r2;
+};
+
+void HarmonicPotential::comp_laplace(Particle *pi){
+    *(pi->laplace) += stiffness * ps->sdim;
 };
 
 
@@ -47,6 +51,10 @@ void HarmonicPairPot::comp_pot(Particle *pi, Particle *pj){
         r2 += sqr(dist);
     }
     *(pi->U) += .5 * .5 * stiffness * r2;
+}
+
+void HarmonicPairPot::comp_laplace(Particle *pi, Particle *pj){
+    *(pi->laplace) += .5 * stiffness;
 }
 
 LJPot::LJPot(int sdim_a, ParticleSystem *ps_a, double epsilon_a, double sigma_a) : PairPotential(sdim_a, ps_a) {
@@ -79,6 +87,9 @@ void LJPot::comp_pot(Particle *pi, Particle *pj){
     s = sqr(s) * s;
     *(pi->U) += .5 * 4.0 * epsilon * ( sqr(s) - s);
 }
+void LJPot::comp_laplace(Particle *pi, Particle *pj){
+    printf("Warning: function LJPot::comp_laplace(Particle *pi, Particle *pj) not implemented");
+};
 
 MorsePot::MorsePot(int sdim_a, ParticleSystem *ps_a, double D_a, double r_e_a, double a_a) : PairPotential(sdim_a, ps_a){
     this->D = D_a;
@@ -110,6 +121,9 @@ void MorsePot::comp_pot(Particle *pi, Particle *pj){
     double ctemp = (1 - exp(-this->a * (r1 - this->r_e)));
     *(pi->U) += .5 * this->D * sqr(ctemp);
 }
+void MorsePot::comp_laplace(Particle *pi, Particle *pj){
+    printf("Warning: function MorsePot::comp_laplace(Particle *pi, Particle *pj) not implemented");
+};
 
 DPDPot::DPDPot(int sdim_a, ParticleSystem *ps_a, double k_stiffness_a, double r_cutoff_a) : PairPotential(sdim_a, ps_a){
     
@@ -140,9 +154,27 @@ void DPDPot::comp_pot(Particle *pi, Particle *pj){
         dist = this->ps->comp_rel_position(pi->position, pj->position, d);
         r2 += sqr(dist);
     }
-    if (r2 < r_cutoff2 )
+    if (r2 < r_cutoff2  )
     {
         r1 = sqrt(r2);
         *(pi->U) +=  .5 * .5 * k_stiffness * r_cutoff * sqr(1.0-r1/r_cutoff);
+    }
+}
+
+void DPDPot::comp_laplace(Particle *pi, Particle *pj){
+    double r1, r2, dist;
+    double dist2[3];
+    r2 = 0;
+    for (int d = 0; d < this->sdim; d++){
+        dist = this->ps->comp_rel_position(pj->position, pi->position, d);
+        dist2[d] = sqr(dist);
+        r2 += dist2[d];
+    }
+    if (r2 < r_cutoff2 && r2 > 0 ){
+        r1 = sqrt(r2);
+        //*(pi->laplace) += .5 * k_stiffness;
+        for (int d = 0; d < this->sdim; d++){
+            *(pi->laplace) += .5 * k_stiffness * (pow(r1,3)-(r2-dist2[d]) * r_cutoff)/( pow(r1,3)*r_cutoff);
+        }
     }
 }

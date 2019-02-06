@@ -51,7 +51,6 @@ public:
     void update_Sigma();
     
     void update_FD(); // calls update_weights() and update_Gamma() in the right order (including the update of ps->rel_distance and ps->rel_position).
-    const gsl_rng_type * T;
     gsl_rng * r;
 };
 

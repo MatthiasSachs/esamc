@@ -27,6 +27,7 @@ ParticleSystem::ParticleSystem(int Np_a, Domain *domain_a){
     force       = gsl_matrix_calloc(this->Np, this->sdim);
     mass        = gsl_vector_calloc(this->Np); gsl_vector_set_all(mass, 1.0);
     U           = gsl_vector_calloc(this->Np);
+    laplace     = gsl_vector_calloc(this->Np);
     
     position_as_vec = gsl_vector_view_array(position->data, dim);
     momentum_as_vec = gsl_vector_view_array(momentum->data, dim);
@@ -35,6 +36,11 @@ ParticleSystem::ParticleSystem(int Np_a, Domain *domain_a){
     //this->momentum   =
     rel_distance   = gsl_spmatrix_alloc(this->Np, this->Np);
     rel_position   = gsl_spmatrix_alloc(this->dim, this->dim);
+    
+    gsl_rng_env_setup();
+    T = gsl_rng_default;
+    r = gsl_rng_alloc (this->T);
+    
     std::cout << "Object is being created" << std::endl;
 };
 
@@ -53,6 +59,36 @@ double ParticleSystem::comp_rel_position(double *pos1, double *pos2, int d){
 void ParticleSystem::apply_boundary(){
     this->domain->apply_boundary();
 }
+
+void ParticleSystem::initMomentum(double beta){
+    for (size_t i = 0; i < this->Np; i++) {
+        for (size_t j = 0; j < this->sdim; j++) {
+            gsl_matrix_set(this->momentum,i,j, gsl_ran_gaussian (this->r, sqrt(this->mass->data[i]/beta)) );
+        }
+    }
+}
+void ParticleSystem::initMomentumDPD(double beta){
+    // Initialize momentum according to temperature
+    this->initMomentum(beta);
+    this->centerMomentum();
+
+}
+
+void ParticleSystem::centerMomentum(){
+    // Center momentum in each dimension
+    double total_momentum;
+    for (size_t j = 0; j < this->sdim; j++) {
+        total_momentum=0;
+        for (size_t i = 0; i < this->Np; i++) {
+            total_momentum +=this->momentum->data[i];
+        }
+        total_momentum/=this->Np;
+        for (size_t i = 0; i < this->Np; i++) {
+            this->momentum->data[i * this->momentum->tda + j] += -total_momentum;
+        }
+    }
+}
+
 Domain::Domain(int sdim_a){
     this->sdim = sdim_a;
 }
@@ -64,21 +100,22 @@ double Domain::comp_rel_position(double *pos1, double *pos2, int d){ return 0;};
 
 
 
-Particle::Particle(double *position_a, double *momentum_a, double *mass_a, double *force_a, double *U_a, int id_a){
-    position = position_a;
-    momentum = momentum_a;
-    mass = mass_a;
-    id = id_a;
-    force = force_a;
-    U = U_a;
+Particle::Particle(double *position_a, double *momentum_a, double *mass_a, double *force_a, double *U_a, double *laplace_a, int id_a){
+    this->position = position_a;
+    this->momentum = momentum_a;
+    this->mass = mass_a;
+    this->id = id_a;
+    this->force = force_a;
+    this->U = U_a;
+    this->laplace = laplace_a;
     
 }
 ParticleList::ParticleList(Particle *p_a){
     p = p_a;
     next = NULL;
 }
-ParticleList::ParticleList(double *position, double *momentum, double *mass, double *force, double *U, int id){
-    p = new Particle(position, momentum, mass, force, U, id);
+ParticleList::ParticleList(double *position, double *momentum, double *mass, double *force, double *U, double *laplace, int id){
+    p = new Particle(position, momentum, mass, force, U, laplace, id);
 }
 
 LcGrid::LcGrid(ParticleSystem *ps_a,int *nc_a){
@@ -292,6 +329,44 @@ void LcGrid::compPotential(){
         }
     }
 }
+
+void LcGrid::compLaplacePotential(){
+    int ic[3];
+    int kc[3];
+    gsl_vector_set_zero(this->ps->laplace);
+    
+    if( NULL != this->ps->epotential){
+        for (int lin_i = 0; lin_i < this->nc_all; lin_i++){
+            this->lin2sub(ic, lin_i);
+            for (ParticleList *i=this->cells[this->sub2lin(ic)]; NULL!=i; i=i->next)
+                this->ps->epotential->comp_laplace(i->p);
+        }
+    }
+    if( NULL != this->ps->ppotential){
+        for (int lin_i = 0; lin_i < this->nc_all; lin_i++)
+        {
+            this->lin2sub(ic, lin_i);
+            for (ParticleList *i=this->cells[this->sub2lin(ic)]; NULL!=i; i=i->next)
+            {
+                for (int li = this->stamp->min_index; li < this->stamp->max_index; li++)
+                {
+                    this->stamp->getNeighbour(kc, ic, li);
+                    this->gridIndex(kc);
+                    for (ParticleList *j=this->cells[this->sub2lin(kc)]; NULL!=j; j=j->next)
+                    {
+                        if (i->p->id != j->p->id)  {
+                            this->ps->ppotential->comp_laplace(i->p, j->p);
+                        }
+                    }
+                }
+            }
+            
+        }
+    }
+}
+
+
+
 Stamp::Stamp(int sdim_a){
     sdim = sdim_a;
     min_index = 0;
@@ -336,29 +411,39 @@ ExternalPotential::ExternalPotential(size_t sdim_a, ParticleSystem *ps_a){
     this->sdim = sdim_a;
     this->ps= ps_a;
 }
-void ExternalPotential::comp_force(Particle *pi){};
-void ExternalPotential::comp_pot(Particle *pi){};
+void ExternalPotential::comp_force(Particle *pi){
+    printf("Warning: function comp_force(Particle *pi) not implemented");
+};
+void ExternalPotential::comp_pot(Particle *pi){
+    printf("Warning: function comp_pot(Particle *pi) not implemented");
+};
+void ExternalPotential::comp_laplace(Particle *pi){
+    printf("Warning: function comp_laplace(Particle *pi) not implemented");
+};
 
 PairPotential::PairPotential(size_t sdim_a, ParticleSystem *ps_a){
     this->sdim = sdim_a;
     this->ps= ps_a;
 }
-void PairPotential::comp_force(Particle *pi, Particle *pj){};
-void PairPotential::comp_pot(Particle *pi, Particle *pj){};
-
-
-
-
-OutputTask::OutputTask(gsl_vector *data, std::string variableName_a){
-    this->variable = (double *) data->data;
-    this->variableName = variableName_a;
-    this->size = data->size;
+void PairPotential::comp_force(Particle *pi, Particle *pj){
+    printf("Warning: function comp_force(Particle *pi, Particle *pj) not implemented");
 };
-OutputTask::OutputTask(gsl_matrix *data, std::string variableName_a){
-    this->variable = (double *) data->data;
-    this->variableName = variableName_a;
-    this->size = data->size1*data->size2;
+void PairPotential::comp_pot(Particle *pi, Particle *pj){
+    printf("Warning: function comp_pot(Particle *pi, Particle *pj) not implemented");
 };
+void PairPotential::comp_laplace(Particle *pi, Particle *pj){
+    printf("Warning: function comp_laplace(Particle *pi, Particle *pj) not implemented");
+};
+
+
+OutputTask::OutputTask(ParticleSystem *ps, std::string variableName){
+    this->variableName = variableName;
+    this->ps = ps;
+};
+void OutputTask::comp_output(double *outputTraj){
+    printf("Warning: function comp_output(double *outputTraj) not implemented");
+};
+
 void OutputSheduler::feed(long int t){};
 
 

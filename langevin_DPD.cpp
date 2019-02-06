@@ -32,11 +32,9 @@ DPD_Tensor::DPD_Tensor(ParticleSystem *ps_a,
     this->Gamma =  gsl_spmatrix_alloc(this->ps->dim, this->ps->dim);
     this->Noise_Matrix = gsl_matrix_calloc(this->ps->Np, this->ps->sdim);
     this->Noise_Matrix_as_vec = gsl_vector_view_array(this->Noise_Matrix->data, this->Noise_Matrix->size1*this->Noise_Matrix->size2);
-    
-    gsl_rng_env_setup();
-    this->T = gsl_rng_default;
-    this->r = gsl_rng_alloc (this->T);
+    this->r = this->ps->r; //Use the random number generator of particle system
 }
+
 void DPD_Tensor::update_FD(){
     this->lcgrid->compRelPos(this->ps->rel_position, this->ps->rel_distance, this->cutoff);
     this->update_weights();

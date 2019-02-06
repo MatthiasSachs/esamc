@@ -54,8 +54,10 @@ public:
     Langevin( double stepsize_a, OutputSheduler *outp_a,
              ParticleSystem *ps_a,
              LcGrid *lcgrid_a, double Tk_B_a);
-    void traverse();
+    virtual void O_step();
+    virtual void traverse();
 };
+
 
 
 #endif /* dynamics_hpp */

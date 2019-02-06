@@ -4,8 +4,8 @@ GSL_LIB_PATH = /usr/local/Cellar/gsl/2.4/lib/ # Path to directory where libgsl.a
 HDF5_LIB_PATH = /usr/local/lib/ # Path to directory where libhdf5_hl.a and libhdf5.a are located
 GSL_HEADER_PATH = /usr/local/Cellar/gsl/2.4/include/ # Path to directory where the directory "gsl/" containing all the gsl *.h files is located
 HDF5_HEADER_PATH = /usr/local/lib/ # Path to directory where all H5*.h files are located
-CFLAGS_OPTIONAL = -o ESamC  #optional flags for c compiler 
-CPPFLAGS_OPTIONAL = # optional flags for c++ compiler 
+CFLAGS_OPTIONAL =  #optional flags for c compiler 
+CPPFLAGS_OPTIONAL = -o esamc # optional flags for c++ compiler 
 
 SRCS := $(wildcard *.cpp)
 CFLAGS_DEFAULT = -I$(GSL_HEADER_PATH) -I$(HDF5_HEADER_PATH) -L$(GSL_LIB_PATH) -L$(GSL_LIB_PATH) -lgsl -lhdf5 -lhdf5_hl

@@ -9,8 +9,10 @@
 #ifndef grid_hpp
 #define grid_hpp
 #include <stdio.h>
-#include <util.h>
+//#include <util.h>
 #include <iostream>
+#include <math.h>
+
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_spmatrix.h>
 #include <hdf5.h>
@@ -27,6 +29,8 @@
 
 #include "expokit_translation2.h"
 
+#define DEFAULT 0
+#define DPD 1
 
 class PairPotential;
 class Stamp;
@@ -60,7 +64,7 @@ public:
     gsl_vector *mass; // vector storing mass of particles
     gsl_matrix *force; // matrix storing force
     gsl_vector *U; //vector storing the contribution to the total potential energy of each particle
-    
+    gsl_vector *laplace; //vector storing the contribution of each particle to the total laplacian of the system
     /* Vector views of the above variables as */
     gsl_vector_view position_as_vec;
     gsl_vector_view momentum_as_vec;
@@ -75,6 +79,8 @@ public:
     ExternalPotential *epotential = NULL;       //array of external potentials
     LcGrid *lcgrid;                             //Linked cell grid used for the computation of forces
 
+    const gsl_rng_type * T; //Random number environment variables
+    gsl_rng * r; //Random number generator for this particle system. Should be used for any generation of random numbers related to this system
     
     ParticleSystem(int Np_a, Domain *domain_a); // standard constructor
     
@@ -88,8 +94,10 @@ public:
     
     void addPotential(ExternalPotential *epotential); //Adds *epotential to the array of external potential
     
-   };
-
+    void initMomentum(double beta);
+    void initMomentumDPD(double beta);
+    void centerMomentum();
+};
 
 /*
  Base class for particles used in the LinkedCell algorithm for the computation of short range forces.
@@ -101,8 +109,9 @@ public:
     double *mass;
     double *force;
     double *U;
+    double *laplace;
     int id;
-    Particle(double *position_a, double *momentum_a, double *mass_a, double *force_a, double *U_a, int id_a);
+    Particle(double *position_a, double *momentum_a, double *mass_a, double *force_a, double *U_a, double *laplace, int id_a);
 };
 
 /*
@@ -113,7 +122,7 @@ class ParticleList {
     Particle *p;
     ParticleList *next;
     ParticleList(Particle *p);
-    ParticleList(double *position, double *momentum, double *mass, double *force, double *U, int id);
+    ParticleList(double *position, double *momentum, double *mass, double *force, double *U, double *laplace, int id);
 };
 typedef ParticleList* Cell;
 /*
@@ -135,6 +144,9 @@ public:
     void compForce();
     /* computes potential enrgy of all particles  */
     void compPotential();
+    
+    /* computes Laplacian of the potential  */
+    void compLaplacePotential();
     
     /* computes relative position + distance between particles. Ensures that only values corresponding to particle pairs with distance < cutoff are added to the matrices rel_position and rel_distance */
     void compRelPos(gsl_spmatrix *rel_position,gsl_spmatrix *rel_distance, double cutoff); //
@@ -182,6 +194,7 @@ public:
     ExternalPotential(size_t sdim_a, ParticleSystem *ps_a);
     virtual void comp_force(Particle *pi);
     virtual void comp_pot(Particle *pi);
+    virtual void comp_laplace(Particle *pi);
 };
 
 
@@ -196,23 +209,26 @@ public:
     PairPotential(size_t sdim_a, ParticleSystem *ps_a);
     virtual void comp_force(Particle *pi, Particle *pj);
     virtual void comp_pot(Particle *pi, Particle *pj);
+    virtual void comp_laplace(Particle *pi, Particle *pj);
 };
 
 /*
- Base class for an output task. See outpusheduler.chh for derived classes
+ Base class for an output task. See outpusheduler.hpp for derived classes
  */
-class OutputTask{
+class OutputTask {
 public:
-    double *variable;
     std::string variableName;
-    double *target;
     size_t size;
-    OutputTask(gsl_vector *data, std::string variableName);
-    OutputTask(gsl_matrix *data, std::string variableName_a);
+    ParticleSystem *ps;
+    OutputTask(ParticleSystem *ps, std::string variableName);
+    virtual void comp_output(double *outputTraj);
 };
 
+
+
+
 /*
- Base class for an output task. See outpusheduler.chh for derived classes
+ Base class for an outputscheduler . See outpusheduler.chh for derived classes
  */
 class OutputSheduler{
 public:

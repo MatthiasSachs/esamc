@@ -12,6 +12,7 @@
 #define VERIFY(a) do { if((a)<0) { fprintf(stderr,"Failure line in file outputshedulers.cpp %d.\n",__LINE__); exit(-1);}}while(0)
 #define GSL_VERIFY(a) do { if((a) != 0) { fprintf(stderr,"Failure line in file outputshedulers.cpp %d.\n",__LINE__); exit(-1);}}while(0)
 
+
 BufferedOutputSheduler::BufferedOutputSheduler(long int nsample_a,
                                                int modprnt_a,
                                                ParticleSystem *ps_a){
@@ -34,10 +35,7 @@ void BufferedOutputSheduler::feed(long int t){
         this->updateStats();
         for (size_t i = 0; i < this->outputTasks.size(); i++) {
             size_t outputsize = this->outputTasks[i]->size;
-            for (size_t d=0; d < outputsize; d++) {
-                this->outputTrajs[i]->data[outputsize * c + d] = this->outputTasks[i]->variable[d];
-            }
-            
+            this->outputTasks[i]->comp_output( &(this->outputTrajs[i]->data[outputsize * c]) );
         }
     }
 }
@@ -60,3 +58,50 @@ BufferedOutputShedulerU::BufferedOutputShedulerU(long int nsample_a,
 void BufferedOutputShedulerU::updateStats(){
     this->ps->lcgrid->compPotential();
 };
+
+SingleVarOT::SingleVarOT(ParticleSystem *ps, std::string variableName) : OutputTask::OutputTask(ps, variableName){};
+
+SingleVarOT::SingleVarOT(gsl_vector *data, ParticleSystem *ps, std::string variableName) : OutputTask::OutputTask(ps, variableName){
+    this->variable = (double *) data->data;
+    this->size = data->size;
+};
+
+SingleVarOT::SingleVarOT(gsl_matrix *data, ParticleSystem *ps, std::string variableName) : OutputTask::OutputTask(ps, variableName){
+    this->variable = (double *) data->data;
+    this->variableName = variableName;
+    this->size = data->size1*data->size2;
+};
+
+void SingleVarOT::comp_output( double *outputTraj){
+    // Writes value of variable assigned to the output task into the double array outputTraj
+    for (size_t d=0; d < this->size; d++) {
+        outputTraj[d] = this->variable[d];
+    }
+}
+
+
+LaplaceOT::LaplaceOT(ParticleSystem *ps) :
+    SingleVarOT::SingleVarOT(ps->laplace, ps, "laplace"){
+        this->size = ps->laplace->size;
+        this->variable = (double *) ps->laplace->data;
+    }
+
+void LaplaceOT::comp_output(double *outputTraj){
+    this->ps->lcgrid->compLaplacePotential();
+    this->SingleVarOT::comp_output(outputTraj);
+}
+
+ConfigTOutputTask::ConfigTOutputTask(ParticleSystem *ps) : OutputTask::OutputTask(ps, "configT"){
+    this->ps = ps;
+    this->size = ps->Np;
+};
+
+void ConfigTOutputTask::comp_output( double *outputTraj){
+    // Writes value of variable assigned to the output task into the double array outputTraj
+    for (size_t i=0; i < ps->Np; i++) {
+        outputTraj[i] = 0;
+        for (size_t d=0; d < ps->sdim; d++)
+            outputTraj[i] += ps->position->data[i*ps->Np + d ] * ps->force->data[i*ps->Np + d];
+    }
+}
+

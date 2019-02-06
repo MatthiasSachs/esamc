@@ -33,6 +33,7 @@ void HamIntegrator::A_step(double stepsize_factor){
     double* momentum = this->ps->momentum->data;
     double h = this->stepsize * stepsize_factor;
     size_t size = this->ps->position->size1 * this->ps->position->size2;
+    // mass not considered here (Only works for m[i] =1, i =1,...,N_p )
     for (size_t i = 0; i < size ; i++) {
         position[i] += h * momentum[i];
     }
@@ -87,3 +88,6 @@ Langevin::Langevin( double stepsize_a, OutputSheduler *outp_a,
                    LcGrid *lcgrid_a, double Tk_B_a) : Thermostat::Thermostat( stepsize_a, outp_a, ps_a,lcgrid_a,Tk_B_a){
 };
 void Langevin::traverse(){};
+void Langevin::O_step(){
+    printf("Warning: O_step not implemented");
+}
