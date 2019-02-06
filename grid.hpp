@@ -97,6 +97,7 @@ public:
     void initMomentum(double beta);
     void initMomentumDPD(double beta);
     void centerMomentum();
+    void scaleMomentum(double beta);
 };
 
 /*

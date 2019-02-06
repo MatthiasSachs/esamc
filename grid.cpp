@@ -71,7 +71,7 @@ void ParticleSystem::initMomentumDPD(double beta){
     // Initialize momentum according to temperature
     this->initMomentum(beta);
     this->centerMomentum();
-
+    this->scaleMomentum(beta);
 }
 
 void ParticleSystem::centerMomentum(){
@@ -80,11 +80,28 @@ void ParticleSystem::centerMomentum(){
     for (size_t j = 0; j < this->sdim; j++) {
         total_momentum=0;
         for (size_t i = 0; i < this->Np; i++) {
-            total_momentum +=this->momentum->data[i];
+            total_momentum += this->momentum->data[i];
         }
         total_momentum/=this->Np;
         for (size_t i = 0; i < this->Np; i++) {
             this->momentum->data[i * this->momentum->tda + j] += -total_momentum;
+        }
+    }
+}
+
+void ParticleSystem::scaleMomentum(double beta){
+    // Scale momentum
+    double total_KT = 0;
+    for (size_t i = 0; i < this->Np; i++) {
+        for (size_t j = 0; j < this->sdim; j++) {
+            total_KT += this->momentum->data[i * this->momentum->tda + j] * this->momentum->data[i * this->momentum->tda + j];
+        }
+    }
+    total_KT /= 3.0*(this->Np-1);
+    double KT_scale = sqrt(1.0/beta/total_KT);
+    for (size_t i = 0; i < this->Np; i++) {
+        for (size_t j = 0; j < this->sdim; j++) {
+            this->momentum->data[i * this->momentum->tda + j] *= KT_scale;
         }
     }
 }
