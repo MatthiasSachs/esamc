@@ -24,9 +24,11 @@ clean:
 # $ make -f makefile_XS.mk 
 # $ LD_LIBRARY_PATH=/home/xshang/mypref/lib
 # $ export LD_LIBRARY_PATH
-# $ ./esamc
+# $ GSL_RNG_SEED=0 ./esamc
 #
 # https://www.gnu.org/software/gsl/doc/html/usage.html#f4
 #
 # https://stackoverflow.com/questions/4470838/g-linking-issue-with-gsl
 #
+# https://www.gnu.org/software/gsl/manual/html_node/Random-number-environment-variables.html#Random-number-environment-variables
+# 
