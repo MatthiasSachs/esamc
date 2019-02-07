@@ -90,7 +90,7 @@ void ParticleSystem::centerMomentum(){
 }
 
 void ParticleSystem::scaleMomentum(double beta){
-    // Scale momentum
+    // Scale momentum //MS commment: mass does not seem to be considered here yet
     double total_KT = 0;
     for (size_t i = 0; i < this->Np; i++) {
         for (size_t j = 0; j < this->sdim; j++) {

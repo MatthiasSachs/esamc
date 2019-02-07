@@ -116,16 +116,11 @@ void test_Verlet()
 
 void test_mBAOAB()
 {
-    
+    double Tk_B = 1.0;
     int Np=200;//75;
     int sdim = 3;
     double cutoff = 1.0;
-    const gsl_rng_type * T;
-    gsl_rng * r;
-    gsl_rng_env_setup();
-    T = gsl_rng_default;
-    r = gsl_rng_alloc (T);
-    
+
     
     double L = 5.0;
     double a = 5.0;
@@ -147,9 +142,10 @@ void test_mBAOAB()
  Initialization of Linked cell algorithm and allocation of memory
  *******************************/
      for (int i=0; i<Np*sdim; i++){
-         ps->position->data[i] = gsl_rng_uniform(r)*a;
+         ps->position->data[i] = gsl_rng_uniform(ps->r)*a;
      //std::cout << "value: " << ps->position->data[i] <<".\n";
      }
+    ps->initMomentum(1.0/Tk_B);
     
     LcGrid *lcgrid = new LcGrid(ps,nc_vec->data);
     Particle **particle_array = (Particle**) malloc(Np*sizeof(Particle*));
@@ -175,18 +171,12 @@ void test_mBAOAB()
     
     double k_stiffness = 25.0;
     double r_cutoff = 1.0;
-    //MorsePot *potential = new MorsePot(sdim, ps, 1.0, 1.0, 1.0);
-    //HarmonicPairPot *potential = new HarmonicPairPot(sdim, ps, 1.0);
     DPDPot *potential = new DPDPot(sdim, ps, k_stiffness, r_cutoff);
-    //LJPot *potential = new LJPot(sdim, ps,  .001, 1.0);
-    //gsl_vector *center = gsl_vector_calloc(sdim);
-    //double stiffness = 1.0;
-    //HarmonicPotential *epotential = new HarmonicPotential(sdim, ps, center->data, stiffness);
+
     ps->addPotential(potential);
-    //ps->addPotential(epotential);
     double stepsize = .05;
     
-    long int nsample = 1000;
+    long int nsample = 20000;
     int modprnt = 1;
     BufferedOutputShedulerU *outp = new BufferedOutputShedulerU(nsample, modprnt, ps);
     
@@ -201,32 +191,38 @@ void test_mBAOAB()
     SingleVarOT outpt5 = SingleVarOT(ps->force, ps, "force");
     outp->addOutputTask(&outpt5);
     
+    
     double gamma_friction =5.0;
-    double Tk_B=1.0;
+
     DPD_InteractionTerm interaction_term =  DPD_InteractionTerm(ps, lcgrid, r_cutoff, gamma_friction);
     DPD_Tensor ft = DPD_Tensor(ps,
                                            lcgrid,
                                            &interaction_term,
                                            r_cutoff);
     
-    //VelocityVerlet *sampler = new VelocityVerlet(stepsize, outp, ps, lcgrid);
+    
     int n_substeps = 1;
-    //Langevin_DPD_m_vv *sampler  = new Langevin_DPD_m_vv(stepsize, outp, ps, lcgrid, Tk_B, &ft, n_substeps);
     int m_exp = 20;
     double tol_exp = 1E-2;
-    //Langevin_DPD_m_krylovBAOAB *sampler  = new Langevin_DPD_m_krylovBAOAB(stepsize, outp, ps, lcgrid, Tk_B, &ft, n_substeps, m_exp, tol_exp);
-    //VelocityVerlet *sampler = new VelocityVerlet(stepsize, outp, ps, lcgrid);
+    /*
+     Other samplers:
+     
+    VelocityVerlet *sampler = new VelocityVerlet(stepsize, outp, ps, lcgrid);
+    Langevin_DPD_m_krylovBAOAB *sampler  = new Langevin_DPD_m_krylovBAOAB(stepsize, outp, ps, lcgrid, Tk_B, &ft, n_substeps, m_exp, tol_exp);
+    Langevin_DPD_m_vv *sampler  = new Langevin_DPD_m_vv(stepsize, outp, ps, lcgrid, Tk_B, &ft, n_substeps);
     Langevin_scalar_BAOAB *sampler = new Langevin_scalar_BAOAB(stepsize, outp, ps, lcgrid, Tk_B, gamma_friction );
+    */
+    Langevin_scalar_BAOAB *sampler = new Langevin_scalar_BAOAB(stepsize, outp, ps, lcgrid, Tk_B, gamma_friction );
+    
     time_t tstart, tend;
     tstart = time(0);
     sampler->sample();
     tend = time(0);
     
-//     outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
-    outp->h5write("/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5");
+    outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
+//    outp->h5write("/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5");
 
     std::cout << "It took "<< difftime(tend, tstart) <<" second(s)."<< ".\n";
-    gsl_rng_free (r);
     
 }
 
