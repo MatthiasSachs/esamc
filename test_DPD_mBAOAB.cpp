@@ -105,7 +105,7 @@ void test_Verlet()
     tend = time(0);
     
 //     outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
-    outp->h5write("/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5");
+    outp->h5write("/home/xshang/Codes/2019_GLE_DPD/esamc/matlab/testfile.h5");
     /*for (int i=0; i<Np*sdim; i++){
         std::cout << "Final value: " << ps->position->data[i] <<".\n";
     }*/
@@ -119,7 +119,7 @@ void test_mBAOAB()
     double Tk_B = 1.0;
     int Np = 500;
     int sdim = 3;
-    double density = 3.0;
+    double density = 4.0;
     double cutoff = 1.0;
     const gsl_rng_type * T;
     gsl_rng * r;
@@ -140,7 +140,7 @@ void test_mBAOAB()
     
     
     Torus *domain = new Torus(sdim, L_vec->data);
-    //RRn *domain = new RRn(sdim, L_vec->data);
+//     RRn *domain = new RRn(sdim, L_vec->data);
 
     ParticleSystem *ps = new ParticleSystem(Np, domain);
 
@@ -224,7 +224,7 @@ void test_mBAOAB()
     tend = time(0);
     
 //     outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
-    outp->h5write("/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5");
+    outp->h5write("/home/xshang/Codes/2019_GLE_DPD/esamc/matlab/testfile.h5");
 
     std::cout << "It took "<< difftime(tend, tstart) <<" second(s)."<< ".\n";
     gsl_rng_free (r);
@@ -343,7 +343,7 @@ void test_mBAOAB_RR3()
     tend = time(0);
     
 //     outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
-    outp->h5write("/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5");
+    outp->h5write("/home/xshang/Codes/2019_GLE_DPD/esamc/matlab/testfile.h5");
     
     std::cout << "It took "<< difftime(tend, tstart) <<" second(s)."<< ".\n";
     gsl_rng_free (r);

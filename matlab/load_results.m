@@ -1,5 +1,5 @@
- filename='/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5';
-%filename='/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5';
+%  filename='/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5';
+filename='/home/xshang/Codes/2019_GLE_DPD/esamc/matlab/testfile.h5';
 potential_traj = h5read(filename,'/traj/potential');
 momentum_traj = h5read(filename,'/traj/momentum');
 position_traj = h5read(filename,'/traj/position');
@@ -13,7 +13,8 @@ potE =  sum(potential_traj,1);
 sdim = 3;% space dimension
 N = size(momentum_traj,1)/sdim;
 N_t = size(momentum_traj,2);
- 
+Nd = (N-1)*sdim; % Number of degrees of freedom in DPD
+
 %%
 figure;
 plot(sum(momentum_traj,1))
@@ -52,9 +53,9 @@ title('Total Momentum')
 %%
 %%
 figure
-KT = sum(momentum_traj.^2,1)/((N-1)*sdim);
+KT = sum(momentum_traj.^2,1)/(Nd);
 plot(KT)
-title('Kinetic temperature')
+title('Average Kinetic Temperature')
 %%
 %%
 % figure
@@ -75,6 +76,13 @@ figure
 CT = sum(force_traj.^2,1)./sum(laplace_traj,1);
 plot(CT)
 %set(gca, 'YScale', 'log')
-title('Configurational temperature')
+title('Average Configurational Temperature')
+%%
+%%
+figure
+PE = sum(potential_traj.^2,1)/(Nd);
+plot(PE)
+%set(gca, 'YScale', 'log')
+title('Average Potential Energy')
 %%
 %%

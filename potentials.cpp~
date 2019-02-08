@@ -139,7 +139,7 @@ void DPDPot::comp_force(Particle *pi, Particle *pj){
         dist = this->ps->comp_rel_position(pi->position, pj->position, d);
         r2 += sqr(dist);
     }
-    if (r2 < r_cutoff2 && r2 > 0.0)
+    if (r2 < r_cutoff2 && r2 > 0)
     {
         r1 = sqrt(r2);
         factor = -k_stiffness * (r_cutoff - r1)/(r_cutoff);
@@ -149,12 +149,14 @@ void DPDPot::comp_force(Particle *pi, Particle *pj){
 }
 void DPDPot::comp_pot(Particle *pi, Particle *pj){
     double r1, r2, dist;
+    double dist2[3];
     r2 = 0.0;
     for (int d = 0; d < this->sdim; d++){
         dist = this->ps->comp_rel_position(pi->position, pj->position, d);
-        r2 += sqr(dist);
+        dist2[d] = sqr(dist);
+        r2 += dist2[d];
     }
-    if (r2 < r_cutoff2 && r2 > 0.0){
+    if (r2 < r_cutoff2 ){
         r1 = sqrt(r2);
         *(pi->U) +=  .5 * .5 * k_stiffness * r_cutoff * sqr(1.0-r1/r_cutoff);
     }
@@ -162,12 +164,14 @@ void DPDPot::comp_pot(Particle *pi, Particle *pj){
 
 void DPDPot::comp_laplace(Particle *pi, Particle *pj){
     double r1, r2, dist;
+    double dist2[3];
     r2 = 0.0;
     for (int d = 0; d < this->sdim; d++){
         dist = this->ps->comp_rel_position(pj->position, pi->position, d);
-        r2 += sqr(dist);
+        dist2[d] = sqr(dist);
+        r2 += dist2[d];
     }
-    if (r2 < r_cutoff2 && r2 > 0.0){
+    if (r2 < r_cutoff2 && r2 > 0 ){
         r1 = sqrt(r2);
         *(pi->laplace) += k_stiffness * ( 3.0/r_cutoff - 2.0/r1 );
     }

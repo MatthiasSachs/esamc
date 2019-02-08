@@ -98,7 +98,8 @@ void ParticleSystem::scaleMomentum(double beta){
         }
     }
     total_KT /= 3.0*(this->Np-1);
-    double KT_scale = sqrt(1.0/beta/total_KT);
+//     double KT_scale = sqrt(1.0/beta/total_KT);
+    double KT_scale = 0.0;
     for (size_t i = 0; i < this->Np; i++) {
         for (size_t j = 0; j < this->sdim; j++) {
             this->momentum->data[i * this->momentum->tda + j] *= KT_scale;
