@@ -80,7 +80,7 @@ void ParticleSystem::centerMomentum(){
     for (size_t j = 0; j < this->sdim; j++) {
         total_momentum=0;
         for (size_t i = 0; i < this->Np; i++) {
-            total_momentum += this->momentum->data[i];
+            total_momentum += this->momentum->data[i * this->momentum->tda + j];
         }
         total_momentum/=this->Np;
         for (size_t i = 0; i < this->Np; i++) {

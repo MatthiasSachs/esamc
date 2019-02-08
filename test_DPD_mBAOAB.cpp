@@ -151,7 +151,7 @@ void test_mBAOAB()
          ps->position->data[i] = gsl_rng_uniform(ps->r)*a;
      //std::cout << "value: " << ps->position->data[i] <<".\n";
      }
-    ps->initMomentum(1.0/Tk_B);
+    ps->initMomentumDPD(1.0/Tk_B);
     
     LcGrid *lcgrid = new LcGrid(ps,nc_vec->data);
     Particle **particle_array = (Particle**) malloc(Np*sizeof(Particle*));

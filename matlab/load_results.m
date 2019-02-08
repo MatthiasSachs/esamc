@@ -1,5 +1,5 @@
-% filename='/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5';
-filename='/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5';
+ filename='/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5';
+%filename='/home/xshang/Codes/2018_GLE_DPD/esamc/matlab/testfile.h5';
 potential_traj = h5read(filename,'/traj/potential');
 momentum_traj = h5read(filename,'/traj/momentum');
 position_traj = h5read(filename,'/traj/position');
