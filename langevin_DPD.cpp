@@ -214,4 +214,5 @@ void Langevin_DPD_m_krylovABOBA::traverse(){
     this->O_step(1.0);
     this->B_step(.5 );
     this->A_step(.5 );
+    this->ps->apply_boundary(); // Don't forget!
 }

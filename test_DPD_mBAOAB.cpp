@@ -119,7 +119,7 @@ void test_mBAOAB()
     double Tk_B = 1.0;
     int Np = 500;
     int sdim = 3;
-    double density = 4.0;
+    double density = 3.0;
     double cutoff = 1.0;
     const gsl_rng_type * T;
     gsl_rng * r;
@@ -180,9 +180,9 @@ void test_mBAOAB()
     DPDPot *potential = new DPDPot(sdim, ps, k_stiffness, r_cutoff);
     ps->addPotential(potential);
     double stepsize = .05;
-    double Time = 100;
+    double Time = 1000;
     
-    long int nsample = floor(Time/stepsize) + 1;
+    long int nsample = floor(Time/stepsize);
     int modprnt = 1;
     BufferedOutputShedulerU *outp = new BufferedOutputShedulerU(nsample, modprnt, ps);
     

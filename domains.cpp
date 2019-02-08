@@ -45,11 +45,14 @@ double Torus::comp_rel_position(double *pos1, double *pos2, int d){
     return cdiff;
 }
 void Torus::apply_boundary(){
-    double shift_dummy;
+//     double shift_dummy;
     size_t ncol =  this->ps->position->tda;
     for (int ip = 0; ip < this->ps->Np; ip++) {
         for (int d = 0; d < this->ps->sdim; d++) {
-            ps->position->data[ip * ncol  + d]  = modf((this->ps->position->data[ip * ncol  + d]+this->L[d]) /  this->L[d], &shift_dummy) * this->L[d];
+//             ps->position->data[ip * ncol  + d]  = modf((this->ps->position->data[ip * ncol  + d]+this->L[d]) /  this->L[d], &shift_dummy) * this->L[d];
+            ps->position->data[ip * ncol  + d] -= .5 * this->L[d];
+            ps->position->data[ip * ncol  + d] -= this->L[d] * round( ps->position->data[ip * ncol  + d] / this->L[d] );
+            ps->position->data[ip * ncol  + d] += .5 * this->L[d];
         }
     }
 }

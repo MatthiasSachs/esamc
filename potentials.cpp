@@ -164,7 +164,7 @@ void DPDPot::comp_laplace(Particle *pi, Particle *pj){
     double r1, r2, dist;
     r2 = 0.0;
     for (int d = 0; d < this->sdim; d++){
-        dist = this->ps->comp_rel_position(pj->position, pi->position, d);
+        dist = this->ps->comp_rel_position(pi->position, pj->position, d);
         r2 += sqr(dist);
     }
     if (r2 < r_cutoff2 && r2 > 0.0){
