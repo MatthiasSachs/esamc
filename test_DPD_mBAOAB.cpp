@@ -179,7 +179,7 @@ void test_mBAOAB()
     double r_cutoff = 1.0;
     DPDPot *potential = new DPDPot(sdim, ps, k_stiffness, r_cutoff);
     ps->addPotential(potential);
-    double stepsize = .05;
+    double stepsize = .05*pow(1.15, 7.0);
     double Time = 1000;
     
     long int nsample = floor(Time/stepsize);

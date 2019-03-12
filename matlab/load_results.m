@@ -6,23 +6,23 @@ position_traj = h5read(filename,'/traj/position');
 force_traj = h5read(filename,'/traj/force');
 laplace_traj = h5read(filename,'/traj/laplace');
 %force_traj = h5read(filename,'/traj/force');
- 
+  
 kinE = .5*sum(momentum_traj.^2,1);
 potE =  sum(potential_traj,1);
- 
+  
 sdim = 3;% space dimension
 N = size(momentum_traj,1)/sdim;
 N_t = size(momentum_traj,2);
 Nd = (N-1)*sdim; % Number of degrees of freedom in DPD
-
-%%
-figure;
-plot(sum(momentum_traj,1))
-hold on
-plot(sum(momentum_traj(1:3:end,:),1))
-plot(sum(momentum_traj(2:3:end,:),1))
-title('Total Momentum')
  
+%%
+% figure;
+% plot(sum(momentum_traj,1))
+% hold on
+% plot(sum(momentum_traj(1:3:end,:),1))
+% plot(sum(momentum_traj(2:3:end,:),1))
+% title('Total Momentum')
+  
 % %%plot(sum(momentum_traj))
 % figure;
 % plot(sum(position_traj(1:2:end,:),1))
@@ -52,10 +52,10 @@ title('Total Momentum')
 % title('Kinetic temperature')
 %%
 %%
-figure
-KT = sum(momentum_traj.^2,1)/(Nd);
-plot(KT)
-title('Average Kinetic Temperature')
+% figure
+% KT = sum(momentum_traj.^2,1)/(Nd);
+% plot(KT)
+% title('Average Kinetic Temperature')
 %%
 %%
 % figure
@@ -72,17 +72,32 @@ title('Average Kinetic Temperature')
 % title('Configurational temperature')
 %%
 %%
-figure
+% figure
+% CT = sum(force_traj.^2,1)./sum(laplace_traj,1);
+% plot(CT)
+% %set(gca, 'YScale', 'log')
+% title('Average Configurational Temperature')
+%%
+%%
+% figure
+% PE = sum(potential_traj.^2,1)/(Nd);
+% plot(PE)
+% %set(gca, 'YScale', 'log')
+% title('Average Potential Energy')
+%%
+%%
+pow = 0;
+dt = 0.05*1.15^(pow);
+KT = sum(momentum_traj.^2,1)/(Nd);
 CT = sum(force_traj.^2,1)./sum(laplace_traj,1);
-plot(CT)
-%set(gca, 'YScale', 'log')
-title('Average Configurational Temperature')
+len = length(KT);
+dt*len
+xx(1) = dt;
+xx(2) = mean(KT(round(0.2*len):end));
+xx(3) = mean(CT(round(0.2*len):end));
+x10(pow+1,:) = xx;
 %%
 %%
-figure
-PE = sum(potential_traj.^2,1)/(Nd);
-plot(PE)
-%set(gca, 'YScale', 'log')
-title('Average Potential Energy')
-%%
-%%
+
+% x=(x1+x2+x3+x4+x5+x6+x7+x8+x9+x10)/10;
+
