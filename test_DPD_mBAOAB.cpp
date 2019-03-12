@@ -8,6 +8,7 @@
 
 #include "test_DPD_mBAOAB.hpp"
 
+
 void test_Verlet()
 {
     
@@ -180,7 +181,7 @@ void test_mBAOAB()
     DPDPot *potential = new DPDPot(sdim, ps, k_stiffness, r_cutoff);
     ps->addPotential(potential);
     double stepsize = .05*pow(1.15, 7.0);
-    double Time = 1000;
+    double Time = 10;
     
     long int nsample = floor(Time/stepsize);
     int modprnt = 1;
@@ -196,6 +197,13 @@ void test_mBAOAB()
     outp->addOutputTask(&outpt4);
     SingleVarOT outpt5 = SingleVarOT(ps->force, ps, "force");
     outp->addOutputTask(&outpt5);
+    
+    force_timer = CodeTimerTraj((long int) nsample);
+    tensor_timer = CodeTimerTraj((long int) nsample);
+    dstep_timer = CodeTimerTraj((long int) nsample);
+    fstep_timer = CodeTimerTraj((long int) nsample);
+
+    
     
     double gamma_friction = 4.5;
     DPD_InteractionTerm interaction_term =  DPD_InteractionTerm(ps, lcgrid, r_cutoff, gamma_friction);
@@ -223,9 +231,15 @@ void test_mBAOAB()
     sampler->sample();
     tend = time(0);
     
-//     outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
-    outp->h5write("/home/xshang/Codes/2019_GLE_DPD/esamc/matlab/testfile.h5");
+    
+    //outp->h5write("/home/xshang/Codes/2019_GLE_DPD/esamc/matlab/testfile.h5");
 
+    outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
+    force_timer.h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/codetimer_force.h5");
+    fstep_timer.h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/codetimer_fstep.h5");
+    dstep_timer.h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/codetimer_dstep.h5");
+    tensor_timer.h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/codetimer_tensor.h5");
+    
     std::cout << "It took "<< difftime(tend, tstart) <<" second(s)."<< ".\n";
     gsl_rng_free (r);
     
@@ -321,6 +335,11 @@ void test_mBAOAB_RR3()
     SingleVarOT outpt5 = SingleVarOT(ps->force, ps, "force");
     outp->addOutputTask(&outpt5);
     
+    force_timer = CodeTimerTraj((long int) nsample);
+    tensor_timer = CodeTimerTraj((long int) nsample);
+    dstep_timer = CodeTimerTraj((long int) nsample);
+    fstep_timer = CodeTimerTraj((long int) nsample);
+    
     double gamma_friction = 4.5;
     double Tk_B = 1.0;
     DPD_InteractionTerm interaction_term =  DPD_InteractionTerm(ps, lcgrid, r_cutoff, gamma_friction);
@@ -342,8 +361,12 @@ void test_mBAOAB_RR3()
     sampler->sample();
     tend = time(0);
     
-//     outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
-    outp->h5write("/home/xshang/Codes/2019_GLE_DPD/esamc/matlab/testfile.h5");
+    outp->h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/testfile.h5");
+//outp->h5write("/home/xshang/Codes/2019_GLE_DPD/esamc/matlab/testfile.h5");
+    force_timer.h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/codetimer_force.h5");
+    fstep_timer.h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/codetimer_fstep.h5");
+    dstep_timer.h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/codetimer_dstep.h5");
+    tensor_timer.h5write("/Users/msachs2/Documents/Code/outputs/fastMD_output/test/codetimer_tensor.h5");
     
     std::cout << "It took "<< difftime(tend, tstart) <<" second(s)."<< ".\n";
     gsl_rng_free (r);

@@ -13,6 +13,7 @@
 #include <iostream>
 #include <math.h>
 
+
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_spmatrix.h>
 #include <hdf5.h>
@@ -29,8 +30,16 @@
 
 #include "expokit_translation2.h"
 
+#include "CodeTimer.hpp"
+
 #define DEFAULT 0
 #define DPD 1
+
+extern CodeTimerTraj force_timer;
+extern CodeTimerTraj tensor_timer;
+extern CodeTimerTraj dstep_timer;
+extern CodeTimerTraj fstep_timer;
+
 
 class PairPotential;
 class Stamp;
@@ -38,6 +47,7 @@ class LcGrid;
 class ParticleSystem;
 class ExternalPotential;
 class OutputSheduler;
+class CodeTimer;
 
 class Domain{
 public:
@@ -242,5 +252,8 @@ public:
     void addOutputTask(OutputTask outputTask);
 };
 
-    
+
+
+
+
 #endif

@@ -23,11 +23,22 @@ void Langevin_DPD_m_vv::O_step(double stepsize_factor, bool need_FD_update){
     }
     for (int k =0; k < this->n_substeps; k++) {
         // D-part
+        dstep_timer.start_clock();
+        
         gsl_vector_memcpy(this->momentum_copy, &this->ps->momentum_as_vec.vector);
         gsl_spblas_dgemv(CblasNoTrans, hs, this->ft->Gamma, this->momentum_copy, 1.0, &this->ps->momentum_as_vec.vector);
+        
+        dstep_timer.record_time();
+        
+        
         // F part
+        
+        fstep_timer.start_clock();
+        
         this->ft->update_Noise();
         gsl_blas_daxpy(var_sqrt, &this->ft->Noise_Matrix_as_vec.vector, &this->ps->momentum_as_vec.vector);
+        
+        fstep_timer.record_time();
     }
 }
 

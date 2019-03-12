@@ -12,6 +12,13 @@
 #include <stdio.h>
 #include "grid.hpp"
 
+extern CodeTimerTraj force_timer;
+extern CodeTimerTraj tensor_timer;
+extern CodeTimerTraj dstep_timer;
+extern CodeTimerTraj fstep_timer;
+
+
+
 class HamIntegrator{
 public:
     double stepsize;

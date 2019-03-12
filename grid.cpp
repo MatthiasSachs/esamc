@@ -279,6 +279,9 @@ void LcGrid::compRelPos(gsl_spmatrix *rel_position,gsl_spmatrix *rel_distance, d
 void LcGrid::compForce(){
     int ic[3];
     int kc[3];
+    
+    force_timer.start_clock();
+    
     gsl_matrix_set_zero(this->ps->force);
     
     if( NULL != this->ps->epotential){
@@ -310,6 +313,7 @@ void LcGrid::compForce(){
             }
         }
     }
+    force_timer.record_time();
 }
 
 void LcGrid::compPotential(){
@@ -565,6 +569,7 @@ void LcGrid::printStateNeighorsListDistance(){
     }
     
 }
+
 
 
 

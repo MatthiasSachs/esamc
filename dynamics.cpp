@@ -25,6 +25,11 @@ void HamIntegrator::sample(){
     for (this->t = 0; this->t < this->outp->nsample; this->t++) {
         this->traverse();
         this->outp->feed(this->t);
+        
+        force_timer.increment_time();
+        tensor_timer.increment_time();
+        dstep_timer.increment_time();
+        fstep_timer.increment_time();
     }
 }
 

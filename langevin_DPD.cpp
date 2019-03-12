@@ -36,9 +36,14 @@ DPD_Tensor::DPD_Tensor(ParticleSystem *ps_a,
 }
 
 void DPD_Tensor::update_FD(){
+    
+    tensor_timer.start_clock();
+    
     this->lcgrid->compRelPos(this->ps->rel_position, this->ps->rel_distance, this->cutoff);
     this->update_weights();
     this->update_Gamma();
+    
+    tensor_timer.record_time();
 }
 void DPD_Tensor::update_weights(){
     this->interactionTerm->update_weights(this->weights);
@@ -48,6 +53,9 @@ void DPD_Tensor::update_weights(){
 }
 
 void DPD_Tensor::update_Gamma(){
+    
+    auto start = std::chrono::high_resolution_clock::now();
+    
     gsl_spmatrix_set_zero(this->Gamma);
     gsl_matrix_set_zero(this->Diagonal);
     gsl_spmatrix *rd = this->ps->rel_distance;
@@ -174,18 +182,37 @@ void Langevin_DPD_m_krylov::O_step(double stepsize_factor){
     double var_sqrt = sqrt(hs*this->Tk_B);
     double hump;
     
+    
     this->ft->update_FD();
     
     for (int k =0; k < this->n_substeps; k++) {
+        
+ 
         // D-part
+        dstep_timer.start_clock();
+        
         gsl_vector_memcpy(this->momentum_copy, &this->ps->momentum_as_vec.vector);
         dgexpv2( .5 * hs, this->ft->Gamma, this->momentum_copy, this->tol_exp, this->m_exp, &this->ps->momentum_as_vec.vector, &hump);
+        
+        dstep_timer.record_time();
+        
+        
         // F part
+        
+        fstep_timer.start_clock();
+        
         this->ft->update_Noise();
         gsl_blas_daxpy(var_sqrt, &this->ft->Noise_Matrix_as_vec.vector, &this->ps->momentum_as_vec.vector);
+        
+        fstep_timer.record_time();
+        
         // D-part
+        dstep_timer.start_clock();
+        
         gsl_vector_memcpy(this->momentum_copy, &this->ps->momentum_as_vec.vector);
         dgexpv2( .5 * hs, this->ft->Gamma, this->momentum_copy, this->tol_exp, this->m_exp, &this->ps->momentum_as_vec.vector, &hump);
+        
+        dstep_timer.record_time();
     }
 }
 
